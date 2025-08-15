@@ -1,0 +1,7 @@
+.idea/
+.nuxt/
+.output/
+.vscode/
+node_modules/
+Dockerfile
+.git/

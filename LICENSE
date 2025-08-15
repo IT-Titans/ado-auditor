@@ -1,0 +1,54 @@
+ADO Auditor Business Source License (AA-BSL) – Legal Version
+
+§ 1 Licensor  
+The licensor is IT-Titans GmbH, hereinafter referred to as the “Licensor.”
+
+§ 2 Subject Matter of the Agreement  
+The subject of this license is the software “ADO Auditor,” including source code, documentation, and all associated files (hereinafter referred to as the “Software”).
+The Software is a tool hosted by the Licensor for the security analysis of Azure DevOps organizations. By entering authentication data, it automatically retrieves information about the Azure DevOps organization, evaluates it based on predefined rules, generates recommendations for action, and provides analysis reports (e.g., in PDF format).
+
+§ 3 Grant of Rights of Use  
+
+    The Licensor grants the Licensee a non-exclusive, non-transferable, revocable right to use the Software solely for the following purposes:
+
+        Non-commercial use,
+
+        Internal testing,
+
+        Research and teaching.
+
+    Any commercial use of the Software is prohibited unless a written commercial license agreement has been concluded in advance with the Licensor.
+
+    For the purposes of this license, “commercial use” includes, but is not limited to:
+
+        Operating the Software or derivative works as a service for third parties,
+
+        Distributing, selling, renting, or licensing the Software,
+
+        Integrating the Software or derivative works into commercial products or services.
+
+§ 4 Modification, Distribution, Forks  
+
+    Modifications to the Software are permitted solely for the purposes specified in § 3(1).
+
+    Any modified version must contain a clearly visible notice referring to the Licensor and the original Software.
+
+    The distribution of modified versions to third parties requires the prior written consent of the Licensor.
+
+    The creation and publication of independent derivatives (“forks”) is prohibited.
+
+§ 5 Trademark Rights  
+The use of the name “ADO Auditor,” the logo, or other protected identifiers of the Licensor is prohibited without the Licensor’s express written permission.
+
+§ 6 License Change  
+The Licensor is entitled, at its sole discretion, to release the source code of individual versions of the Software under a different license, including an open-source license, at any time. There is no obligation to do so.
+
+§ 7 Disclaimer of Warranty  
+THE SOFTWARE IS PROVIDED “AS IS,” WITHOUT ANY EXPRESS OR IMPLIED WARRANTY, INCLUDING, BUT NOT LIMITED TO, THE WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+THE LICENSOR SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOSS OF PROFITS, ARISING OUT OF THE USE OR INABILITY TO USE THE SOFTWARE.
+
+§ 8 Scope  
+This license applies worldwide to the extent permitted under applicable law. The Licensee is solely responsible for verifying the legal permissibility of use in their jurisdiction.
+
+§ 9 Severability Clause  
+If any provision of this license is invalid or unenforceable, the validity of the remaining provisions shall not be affected. The law of the Federal Republic of Germany shall apply.

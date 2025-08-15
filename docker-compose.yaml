@@ -1,0 +1,49 @@
+﻿volumes:
+  redis-data:
+    driver: local
+
+services:
+  api:
+    image: adoexport.api:latest
+    build:
+      context: ./backend
+    depends_on:
+      - redis
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT:-Development}
+      - AZURECOMMUNICATIONSERVICE__CONNECTIONSTRING=${AZURECOMMUNICATIONSERVICE__CONNECTIONSTRING:?error}
+      - FEEDBACK__SENDER=${FEEDBACK__SENDER:?error}
+      - FEEDBACK__RECEIVER=${FEEDBACK__RECEIVER:?error}
+      - CONTACT__SENDER=${CONTACT__SENDER:?error}
+      - CONTACT__RECEIVER=${CONTACT__RECEIVER:?error}
+      - USERCONSENT__SENDER=${USERCONSENT__SENDER:?error}
+      - USERCONSENT__RECEIVER=${USERCONSENT__RECEIVER:?error}
+      - AUDITLOGS__SENDER=${AUDITLOGS__SENDER:?error}
+      - AUDITLOGS__RECEIVER=${AUDITLOGS__RECEIVER:?error}
+      - ERRORREPORTS__SENDER=${ERRORREPORTS__SENDER:?error}
+      - ERRORREPORTS__RECEIVER=${ERRORREPORTS__RECEIVER:?error}
+      - CACHES__CACHEEXPIRY=${CACHES__CACHEEXPIRY:?error}
+      - CACHES__CACHETYPE=${CACHES__CACHETYPE:?error}
+      - REDISCACHE__CONFIGURATION=${REDISCACHE__CONFIGURATION:?error}
+    ports:
+      - 8080:8080
+
+  app:
+    image: adoexport.app:latest
+    build:
+      context: ./frontend
+    environment:
+      - NUXT_API_URL=${NUXT_API_URL:?error}
+      - NUXT_PUBLIC_AUDIT_EXPIRE_TIME=${NUXT_PUBLIC_AUDIT_EXPIRE_TIME:?error}
+    ports:
+      - 8081:80
+
+  redis:
+    image: "redis:${REDIS_VERSION:?error}"
+    restart: unless-stopped
+    ports:
+      # Default Redis port. Change in .env file as required.
+      - "${REDIS_PORT:?error}:6379/tcp"
+    volumes:
+      - redis-data:/data
+    command: redis-server --save 60 1 --loglevel warning

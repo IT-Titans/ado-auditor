@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <PackageReference Include="FluentResults" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AdoExport.Client\AdoExport.Client.csproj" />
+    </ItemGroup>
+
+</Project>

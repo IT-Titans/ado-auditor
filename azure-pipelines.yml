@@ -1,0 +1,148 @@
+trigger:
+  branches:
+    include:
+      - dev
+      - main
+  paths:
+    include:
+      - backend/**
+      - frontend/**
+pr: none
+# Test PR
+variables:
+  sha: $(Build.SourceVersion)
+  tag: $(Build.SourceBranchName)-$(Build.BuildId)
+
+stages:
+
+# Build and test backend and frontend, push to remote container repository (#1526)
+- stage: build
+  displayName: Build and Push
+  jobs:
+  - job: backend
+    displayName: Backend
+    pool: { vmImage: 'ubuntu-latest' }
+    steps:
+      # Build backend
+      - task: Docker@2
+        inputs:
+          command: build
+          Dockerfile: backend/Dockerfile
+          repository: $(repoBackend)
+          tags: |
+            $(sha)
+            $(tag)
+            adoexport.api
+          containerRegistry: ado-acr
+      # Push backend image to remote
+      - task: Docker@2
+        inputs:
+          command: push
+          repository: $(repoBackend)
+          tags: |
+            $(sha)
+            $(tag)
+            adoexport.api
+          containerRegistry: ado-acr
+        displayName: Push backend image
+
+  - job: frontend
+    displayName: Frontend
+    pool: { vmImage: 'ubuntu-latest' }
+    steps:
+      # Build frontend
+      - task: Docker@2
+        inputs:
+          command: build
+          Dockerfile: frontend/Dockerfile
+          repository: $(repoFrontend)
+          tags: |
+            $(sha)
+            $(tag)
+            adoexport.app
+          containerRegistry: ado-acr
+      # Push frontend image to remote
+      - task: Docker@2
+        inputs:
+          command: push
+          repository: $(repoFrontend)
+          tags: |
+            $(sha)
+            $(tag)
+            adoexport.app
+          containerRegistry: ado-acr
+        displayName: Push frontend image
+
+# Deploy new images to development App Services (#1526)
+- stage: deploy_dev
+  displayName: Deploy to Dev Apps
+  dependsOn: build
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/dev'))
+  jobs:
+  # Deploy backend
+  - deployment: DeployBackend
+    displayName: Deploy Backend
+    environment: dev-backend
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureWebAppContainer@1
+            displayName: Deploy backend container
+            inputs:
+              azureSubscription: ado-azure-resource-manager
+              appName: $(backendDevAppName)
+              containers: |
+                $(acrLoginServer)/$(repoBackend):$(sha)
+  # Deploy frontend
+  - deployment: DeployFrontend
+    displayName: Deploy Frontend
+    environment: dev-frontend
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureWebAppContainer@1
+            displayName: Deploy frontend container
+            inputs:
+              azureSubscription: ado-azure-resource-manager
+              appName: $(frontendDevAppName)
+              containers: |
+                $(acrLoginServer)/$(repoFrontend):$(sha)
+
+# Deploy new images to production App Services (#1913)
+- stage: deploy_prod
+  displayName: Deploy to Prod Apps
+  dependsOn: build
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  # Deploy backend
+  - deployment: DeployBackend
+    displayName: Deploy Backend
+    environment: prod-backend
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureWebAppContainer@1
+            displayName: Deploy backend container
+            inputs:
+              azureSubscription: ado-azure-resource-manager
+              appName: $(backendProdAppName)
+              containers: |
+                $(acrLoginServer)/$(repoBackend):$(sha)
+  # Deploy frontend
+  - deployment: DeployFrontend
+    displayName: Deploy Frontend
+    environment: prod-frontend
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: AzureWebAppContainer@1
+            displayName: Deploy frontend container
+            inputs:
+              azureSubscription: ado-azure-resource-manager
+              appName: $(frontendProdAppName)
+              containers: |
+                $(acrLoginServer)/$(repoFrontend):$(sha)

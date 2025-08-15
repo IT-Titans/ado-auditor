@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Company>IT-Titans GmbH</Company>
+    <Product>ADO Auditor</Product>
+
+    <Copyright>
+      Copyright © IT-Titans GmbH 2025 - Licensed under the
+      ADO Auditor Business Source License (AA-BSL). Non-commercial use only.
+      See LICENSE file for details.
+    </Copyright>
+
+    <PackageLicenseExpression>NOASSERTION</PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/IT-Titans/ado-auditor</PackageProjectUrl>
+    <Authors>IT-Titans GmbH</Authors>
+
+    <Version>1.2.0</Version>
+    <FileVersion>1.2.0.0</FileVersion>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>License</_Parameter1>
+      <_Parameter2>ADO Auditor Business Source License (AA-BSL)</_Parameter2>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>LicenseUrl</_Parameter1>
+      <_Parameter2>https://github.com/IT-Titans/ado-auditor/blob/main/LICENSE</_Parameter2>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>Contact</_Parameter1>
+      <_Parameter2>https://it-titans-gmbh.com/kontakt/</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Diagnostics" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="CommunityToolkit.Diagnostics" />
+  </ItemGroup>
+
+</Project>
