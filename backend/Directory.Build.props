@@ -2,36 +2,31 @@
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <PropertyGroup>
-    <Company>IT-Titans GmbH</Company>
+    <Company>IT Titans GmbH</Company>
     <Product>ADO Auditor</Product>
 
-    <Copyright>
-      Copyright © IT-Titans GmbH 2025 - Licensed under the
-      ADO Auditor Business Source License (AA-BSL). Non-commercial use only.
-      See LICENSE file for details.
-    </Copyright>
+    <Copyright>Copyright (C) 2025-2026 IT Titans GmbH. Licensed under the GNU Affero General Public License v3.0 or later. See the LICENSE file.</Copyright>
 
-    <PackageLicenseExpression>NOASSERTION</PackageLicenseExpression>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/IT-Titans/ado-auditor</PackageProjectUrl>
-    <Authors>IT-Titans GmbH</Authors>
+    <Authors>IT Titans GmbH</Authors>
 
-    <Version>1.2.0</Version>
-    <FileVersion>1.2.0.0</FileVersion>
-    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <Version>1.4.0</Version>
+    <FileVersion>1.4.0.0</FileVersion>
+    <AssemblyVersion>1.4.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
       <_Parameter1>License</_Parameter1>
-      <_Parameter2>ADO Auditor Business Source License (AA-BSL)</_Parameter2>
+      <_Parameter2>GNU Affero General Public License v3.0 or later</_Parameter2>
     </AssemblyAttribute>
     <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
       <_Parameter1>LicenseUrl</_Parameter1>

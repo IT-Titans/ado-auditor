@@ -105,7 +105,7 @@ public class UserOrganizationAdminAuditRuleTests
     }
 
     [Test]
-    public void Audit_WhenUserIsInProjectCollectionAdminGroup_ReturnsUserIsNotOrganizationAdminReason()
+    public void Audit_WhenUserIsInProjectCollectionAdminGroup_ReturnsUserIsOrganizationAdminReason()
     {
         var fixture = CreateFixture();
 

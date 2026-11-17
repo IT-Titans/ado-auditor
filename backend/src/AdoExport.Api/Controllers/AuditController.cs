@@ -12,7 +12,10 @@ using AdoExport.Client.AdoApi.Errors;
 using AdoExport.Common.Errors;
 using AdoExport.Common.Services;
 
+using AdoExport.Api.RateLimiting;
+
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 
 namespace AdoExport.Api.Controllers;
@@ -41,6 +44,7 @@ public class AuditController : ControllerBase
         _sendMailService = sendMailService;
     }
 
+    [EnableRateLimiting(RateLimitPolicies.Audit)]
     [HttpPost(Name = "StartAudit")]
     [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -153,10 +157,15 @@ public class AuditController : ControllerBase
             }
             finally
             {
-                _ = _sendMailService.SendAuditMetricsMailAsync(
-                    _auditLogsMailOptions.Value.Sender,
-                    _auditLogsMailOptions.Value.Receiver,
-                    metrics);
+                // Not awaited: the metrics are for us, and the user must neither wait for
+                // them nor see an error because of them. A failure ends up in the log.
+                _ = BackgroundMail.Send(
+                    () => _sendMailService.SendAuditMetricsMailAsync(
+                        _auditLogsMailOptions.Value.Sender,
+                        _auditLogsMailOptions.Value.Receiver,
+                        metrics),
+                    _logger,
+                    "audit metrics");
             }
         }).ConfigureAwait(false);
     }

@@ -9,7 +9,10 @@ using AdoExport.Api.Services.Notifications;
 using AdoExport.Api.Services.UserConsent;
 using AdoExport.Common.Services;
 
+using AdoExport.Api.RateLimiting;
+
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 
 namespace AdoExport.Api.Controllers;
@@ -25,6 +28,7 @@ public class ContactController : ControllerBase
         _logger = logger;
     }
 
+    [EnableRateLimiting(RateLimitPolicies.Mail)]
     [HttpPost(Name = "SubmitContactInquiry")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -61,7 +65,7 @@ public class ContactController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
 
-        await sendMailService
+        var sendResult = await sendMailService
             .SendContactMailAsync(
                 contactMailConfiguration.Value.Sender,
                 contactMailConfiguration.Value.Receiver,
@@ -73,6 +77,11 @@ public class ContactController : ControllerBase
                     Text = model.Message,
                 })
             .ConfigureAwait(false);
+        if (sendResult.IsFailed)
+        {
+            // The inquiry reached nobody. Answering 200 would tell the sender otherwise.
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
 
         return Ok();
     }

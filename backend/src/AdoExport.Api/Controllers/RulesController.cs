@@ -8,7 +8,7 @@ using AdoExport.Api.Services;
 using AdoExport.Auditing;
 using AdoExport.Client.AdoApi.Models;
 
-using AutoMapper;
+using AdoExport.Api.Controllers.Mappings;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -53,7 +53,7 @@ public class RulesController : ControllerBase
         [FromQuery] Guid auditId,
         [FromQuery] Models.Severities? severity,
         [FromServices] ScopedAuditKeyBearer auditKeyBearer,
-        [FromServices] IMapper mapper)
+        [FromServices] IAuditMapper mapper)
     {
         if (auditId == Guid.Empty)
         {
@@ -81,7 +81,7 @@ public class RulesController : ControllerBase
                         return true;
                     }
 
-                    return result.Reason.Severity == mapper.Map<Models.Severities, AdoExport.Auditing.Severities>(severity.Value);
+                    return result.Reason.Severity == mapper.MapSeverityToDomain(severity.Value);
                 });
 
             var rules = await _rulesRepository
@@ -119,7 +119,7 @@ public class RulesController : ControllerBase
         [FromQuery] Guid auditId,
         [FromServices] ScopedAuditKeyBearer auditKeyBearer,
         [FromServices] INotesOnRulesService notesOnRulesService,
-        [FromServices] IMapper mapper)
+        [FromServices] IAuditMapper mapper)
     {
         if (ruleId == Guid.Empty)
         {
@@ -203,7 +203,7 @@ public class RulesController : ControllerBase
                 Id = ruleResult.Reason.Id,
                 Scope = Models.Categories.Pats,
                 TotalCounts = auditees.Count(),
-                Severity = mapper.Map<AdoExport.Auditing.Severities, Models.Severities>(ruleResult.Reason.Severity),
+                Severity = mapper.MapSeverityToDto(ruleResult.Reason.Severity),
                 Name = hint.Name,
                 Description = hint.Description,
                 Recommendation = hint.Recommendations,
@@ -238,7 +238,7 @@ public class RulesController : ControllerBase
         [FromQuery] Guid auditId,
         [FromQuery] Models.Severities? severity,
         [FromServices] ScopedAuditKeyBearer auditKeyBearer,
-        [FromServices] IMapper mapper)
+        [FromServices] IAuditMapper mapper)
     {
         if (auditId == Guid.Empty)
         {
@@ -265,7 +265,7 @@ public class RulesController : ControllerBase
                         return true;
                     }
 
-                    return result.Reason.Severity == mapper.Map<Models.Severities, AdoExport.Auditing.Severities>(severity.Value);
+                    return result.Reason.Severity == mapper.MapSeverityToDomain(severity.Value);
                 });
 
             var rules = await _rulesRepository
@@ -303,7 +303,7 @@ public class RulesController : ControllerBase
         [FromQuery] Guid auditId,
         [FromServices] ScopedAuditKeyBearer auditKeyBearer,
         [FromServices] INotesOnRulesService notesOnRulesService,
-        [FromServices] IMapper mapper)
+        [FromServices] IAuditMapper mapper)
     {
         if (ruleId == Guid.Empty)
         {
@@ -371,7 +371,7 @@ public class RulesController : ControllerBase
                 Id = ruleResult.Reason.Id,
                 Scope = Models.Categories.Users,
                 TotalCounts = auditees.Count(),
-                Severity = mapper.Map<AdoExport.Auditing.Severities, Models.Severities>(ruleResult.Reason.Severity),
+                Severity = mapper.MapSeverityToDto(ruleResult.Reason.Severity),
                 Name = hint.Name,
                 Description = hint.Description,
                 Recommendation = hint.Recommendations,

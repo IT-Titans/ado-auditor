@@ -30,8 +30,9 @@ public class ReportsController : ControllerBase
     }
 
     [HttpGet(Name = "GetAuditPdfReport")]
-    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
-    [Produces(MediaTypeNames.Application.Pdf)]
+    // Not [Produces]: that would pin every response, including the plain-text 400 and 410
+    // bodies, to application/pdf, and MVC answers those with 406 Not Acceptable.
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK, MediaTypeNames.Application.Pdf)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(string), StatusCodes.Status410Gone)]

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const features = ref<Feature[]>([
+const features = ref<FeatureItem[]>([
   {
     id: "1",
     title: "Insights",

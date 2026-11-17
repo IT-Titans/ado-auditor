@@ -9,7 +9,10 @@ export default defineEventHandler(async (event) => {
     await $fetch(target, {
       method: "POST",
       body,
+      headers: getBackendHeaders(event),
       onResponseError: ({ response }) => {
+        passRetryAfter(event, response);
+
         console.log("Response error:", response);
 
         throw createError({

@@ -3,7 +3,7 @@ const route = useRoute();
 async function handleClick() {
   try {
     const response = await useAsyncData(() =>
-      $fetch("/api/reports", {
+      $fetch<Blob>("/api/reports", {
         method: "GET",
         headers: {
           Accept: "application/pdf",
@@ -12,13 +12,12 @@ async function handleClick() {
           auditId: route.params.id,
         },
         responseType: "blob",
-        raw: true,
       })
     );
 
     const blob = await response.data.value;
 
-    if (response.error.value) {
+    if (response.error.value || !blob) {
       throw createError({
         statusCode: 500,
         statusText: "Can't create report pdf.",

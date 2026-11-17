@@ -5,7 +5,13 @@ export default defineEventHandler(async (event) => {
 
   const result = await $fetch<string>(target, {
     method: "POST",
-     body,
+    body,
+    headers: getBackendHeaders(event),
+    // Nothing is thrown here on purpose: the error keeps reaching the caller exactly as
+    // before, it only carries the backend's Retry-After along when there is one.
+    onResponseError: ({ response }) => {
+      passRetryAfter(event, response);
+    },
   });
 
   return {

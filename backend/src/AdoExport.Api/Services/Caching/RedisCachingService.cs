@@ -51,7 +51,7 @@ public class RedisCachingService : ICachingService
 
         var value = await db.StringGetAsync(key).ConfigureAwait(false);
 
-        return JsonSerializer.Deserialize<T>(value!);
+        return JsonSerializer.Deserialize<T>((string)value!);
     }
 
     /// <inheritdoc />

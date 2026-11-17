@@ -1,3 +1,5 @@
+import type { LucideIcon } from "lucide-vue-next";
+
 import {
   House,
   Inbox,
@@ -9,7 +11,7 @@ import {
 } from "lucide-vue-next";
 
 // Define a mapping from nav item keys to icon components
-export const navIcons: Record<string, any> = {
+export const navIcons: Record<string, LucideIcon> = {
   home: House,
   projects: Inbox,
   groups: Group,
@@ -41,4 +43,4 @@ export const navMeta = Object.keys(navIcons).reduce((acc, key) => {
     title: navTitles[key],
   };
   return acc;
-}, {} as Record<string, { icon: any; title: string }>);
+}, {} as Record<string, { icon: LucideIcon; title: string }>);

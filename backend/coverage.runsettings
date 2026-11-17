@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Coverage settings shared by local runs and the pipeline.
+
+  Without these, generated source counts towards the target: the OpenAPI source
+  generator alone contributes 428 lines to AdoExport.Api, and the resx designer file
+  adds 112 more. None of it is code anyone here writes or can meaningfully test.
+
+  CompilerGeneratedAttribute is deliberately NOT excluded. It would also drop every
+  async state machine, which is most of this codebase: measured on 12.11.2026 it took
+  AdoExport.Api from 7480 countable lines down to 4014 and lifted the reported figure
+  from 23.6 % to 36.0 % without a single extra test. That is a nicer number about less
+  code, which is the opposite of the point.
+
+  Pass this to dotnet test with the "settings" option, alongside the XPlat Code
+  Coverage collector.
+-->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+
+          <!-- Anything a tool emitted, plus anything deliberately opted out. -->
+          <ExcludeByAttribute>GeneratedCodeAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
+
+          <!-- Source generators write into obj/, and the resx designer is generated too. -->
+          <ExcludeByFile>**/obj/**/*.cs,**/*.Designer.cs,**/*.g.cs,**/*.generated.cs</ExcludeByFile>
+
+          <!-- The test projects themselves are not the subject of the measurement. -->
+          <Exclude>[*.Tests]*,[*]AdoExport.Api.Tests.*</Exclude>
+
+          <SingleHit>false</SingleHit>
+          <UseSourceLink>false</UseSourceLink>
+          <IncludeTestAssembly>false</IncludeTestAssembly>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

@@ -9,7 +9,10 @@ export default defineEventHandler(async (event): Promise<PatResponse> => {
       query: {
         auditId: query.auditId,
       },
+      headers: getBackendHeaders(event),
       onResponseError: ({ response }) => {
+        passRetryAfter(event, response);
+
         console.error("Response error:", response);
 
         throw createError({

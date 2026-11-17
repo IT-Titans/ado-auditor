@@ -100,12 +100,12 @@ export function getErrorMessage(statusCode?: number): string {
     return "An unknown error has occurred.";
   }
 
-  return errorMassages[statusCode].message || "An unknown error has occurred.";
+  return errorMassages[statusCode]?.message || "An unknown error has occurred.";
 }
 
 export function getErrorTitle(statusCode?: number): string {
   if (!statusCode) {
     return "Unknown error!";
   }
-  return errorMassages[statusCode].title || "Unknown error!";
+  return errorMassages[statusCode]?.title || "Unknown error!";
 }

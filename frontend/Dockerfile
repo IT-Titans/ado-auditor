@@ -13,8 +13,9 @@ RUN pnpm install
 # Copy the entire project
 COPY . ./
 
-# Test the project
-RUN pnpm vitest run
+# Tests deliberately do not run here. A failing RUN surfaces as a Docker build error
+# with no test report and no coverage attached to the build. The pipeline runs them in
+# its own Test stage instead, where the results and the coverage are published.
 
 # Build the project
 RUN pnpm nuxt build --no-cache

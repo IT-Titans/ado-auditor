@@ -1,10 +1,10 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+﻿FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /workdir
 
@@ -39,14 +39,23 @@ COPY . .
 # Build the solution
 RUN dotnet build "AdoExport.Api.sln" -c $BUILD_CONFIGURATION -o /app/build --no-restore
 
-# Run tests
-RUN dotnet test "AdoExport.Api.sln" -c $BUILD_CONFIGURATION
+# Tests deliberately do not run here. A failing RUN surfaces as a Docker build error
+# with no test report and no coverage attached to the build, which is how a broken
+# suite can stay invisible. The pipeline runs them in its own Test stage instead.
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./src/AdoExport.Api/AdoExport.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
+
+# The branch the image is built from. The pipeline passes it in, a local build leaves it
+# empty. The application loads appsettings.branch.<branch>.json when that file exists,
+# which is how images built from main, the ones deployed to production, get their own
+# settings without anything being set on the App Service.
+ARG ADOAUDITOR_BUILD_BRANCH=""
+ENV ADOAUDITOR__BUILDBRANCH=$ADOAUDITOR_BUILD_BRANCH
+
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "AdoExport.Api.dll"]

@@ -27,7 +27,7 @@ internal sealed class UserConsentService : IUserConsentService
     /// <inheritdoc />
     public async Task<Result> StoreUserConsentForContactFormAsync(string userIdentifier, DateTime timeOfConsent)
     {
-        await _sendMailService.SendUserConsentMailAsync(
+        return await _sendMailService.SendUserConsentMailAsync(
             _userConsentMailOptions.Value.Sender,
             _userConsentMailOptions.Value.Receiver,
             new ContactFormUserConsent()
@@ -35,14 +35,12 @@ internal sealed class UserConsentService : IUserConsentService
                 Identifier = userIdentifier,
                 TimeOfConsent = timeOfConsent,
             }).ConfigureAwait(false);
-
-        return Result.Ok();
     }
 
     /// <inheritdoc />
     public async Task<Result> StoreUserConsentForFeedbackFormAsync(string auditId, string userIdentifier, DateTime timeOfConsent)
     {
-        await _sendMailService.SendUserConsentMailAsync(
+        return await _sendMailService.SendUserConsentMailAsync(
             _userConsentMailOptions.Value.Sender,
             _userConsentMailOptions.Value.Receiver,
             new FeedbackFormUserConsent()
@@ -51,14 +49,12 @@ internal sealed class UserConsentService : IUserConsentService
                 Identifier = userIdentifier,
                 TimeOfConsent = timeOfConsent,
             }).ConfigureAwait(false);
-
-        return Result.Ok();
     }
 
     /// <inheritdoc />
     public async Task<Result> StoreUserConsentForAuditAsync(string auditId, string userIdentifier, bool consentForAnonymousLogging, DateTime timeOfConsent)
     {
-        await _sendMailService.SendUserConsentMailAsync(
+        return await _sendMailService.SendUserConsentMailAsync(
             _userConsentMailOptions.Value.Sender,
             _userConsentMailOptions.Value.Receiver,
             new StartAuditFormUserConsent()
@@ -68,7 +64,5 @@ internal sealed class UserConsentService : IUserConsentService
                 TimeOfConsent = timeOfConsent,
                 ConsentForAnonymousLogging = consentForAnonymousLogging,
             }).ConfigureAwait(false);
-
-        return Result.Ok();
     }
 }

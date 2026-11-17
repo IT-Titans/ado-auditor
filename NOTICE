@@ -1,0 +1,53 @@
+ADO Auditor
+Copyright (C) 2025-2026 IT Titans GmbH
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+The full licence text is in the LICENSE file. If it is missing, see
+<https://www.gnu.org/licenses/agpl-3.0.html>.
+
+
+Network use
+-----------
+
+Section 13 of the AGPL applies to this program. If you modify it and make it
+available to users over a network, you must also offer those users the source
+code of your modified version.
+
+
+Trademarks
+----------
+
+"ADO Auditor", the ADO Auditor logo, the IT-Titans name and the IT-Titans logo
+are marks of IT Titans GmbH. The AGPL grants no rights to use them. A fork or
+modified version must be published under a different name and must not suggest
+that IT Titans GmbH endorses it.
+
+
+Commercial licensing
+--------------------
+
+IT Titans GmbH holds the copyright in this program and is therefore not bound
+by the terms it grants to others. If the obligations of the AGPL do not suit
+your situation -- for instance because you want to run a modified version as a
+service without publishing your changes -- a separate commercial licence is
+available.
+
+Contact: https://it-titans-gmbh.com/kontakt/
+
+
+Third-party components
+----------------------
+
+This program bundles and depends on third-party software under its own terms.
+QuestPDF deserves a specific note: its Community licence is MIT, granted free
+of charge to open-source projects, to non-profit and educational use, and to
+companies below 1,000,000 USD in annual gross revenue. Above that threshold a
+paid QuestPDF licence may be required. See https://www.questpdf.com/license/

@@ -9,7 +9,10 @@ using AdoExport.Api.Services.Notifications;
 using AdoExport.Api.Services.UserConsent;
 using AdoExport.Common.Services;
 
+using AdoExport.Api.RateLimiting;
+
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 
 namespace AdoExport.Api.Controllers;
@@ -33,6 +36,7 @@ public class FeedbackController : ControllerBase
         _auditRepository = auditRepository;
     }
 
+    [EnableRateLimiting(RateLimitPolicies.Mail)]
     [HttpPost(Name = "SubmitFeedback")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
@@ -85,7 +89,7 @@ public class FeedbackController : ControllerBase
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
 
-            await sendMailService
+            var sendResult = await sendMailService
                 .SendFeedbackMailAsync(
                     feedbackMailConfiguration.Value.Sender,
                     feedbackMailConfiguration.Value.Receiver,
@@ -97,6 +101,11 @@ public class FeedbackController : ControllerBase
                         Text = model.Feedback,
                     })
                 .ConfigureAwait(false);
+            if (sendResult.IsFailed)
+            {
+                // The feedback reached nobody. Answering 200 would tell the sender otherwise.
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
 
             return Ok();
         }).ConfigureAwait(false);

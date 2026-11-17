@@ -45,6 +45,9 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     apiUrl: "",
+    proxyKey: "",
+    shouldRedirect: false,
+    redirectToUrl: '',
     public: {
       auditExpireTime: "",
     },

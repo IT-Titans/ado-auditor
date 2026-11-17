@@ -73,11 +73,11 @@
 
         <h3>Responsible Party</h3>
         <p>
-          Company: IT-Titans GMBH<br>
-          Managing Director: Sarah Mostertz<br>
+          Company: IT Titans GmbH<br>
+          Managing Director: Sarah Koch<br>
           Address: Am Emsdeich 48, 26789 Leer<br>
           Phone: +49 4954 893691<br>
-          Email: <a href="mailto:sarah.mostertz@it-titans.de">sarah.mostertz@it-titans.de</a>
+          Email: <a href="mailto:info@it-titans.de">info@it-titans.de</a>
         </p>
 
         <h3>Revocation of Your Consent</h3>

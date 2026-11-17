@@ -25,6 +25,7 @@ services:
       - CACHES__CACHEEXPIRY=${CACHES__CACHEEXPIRY:?error}
       - CACHES__CACHETYPE=${CACHES__CACHETYPE:?error}
       - REDISCACHE__CONFIGURATION=${REDISCACHE__CONFIGURATION:?error}
+      - RATELIMITING__TRUSTEDPROXYKEY=${RATELIMITING__TRUSTEDPROXYKEY:-}
     ports:
       - 8080:8080
 
@@ -34,6 +35,7 @@ services:
       context: ./frontend
     environment:
       - NUXT_API_URL=${NUXT_API_URL:?error}
+      - NUXT_PROXY_KEY=${NUXT_PROXY_KEY:-}
       - NUXT_PUBLIC_AUDIT_EXPIRE_TIME=${NUXT_PUBLIC_AUDIT_EXPIRE_TIME:?error}
     ports:
       - 8081:80

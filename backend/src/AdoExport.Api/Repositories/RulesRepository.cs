@@ -5,7 +5,7 @@ using AdoExport.Api.Services;
 using AdoExport.Auditing;
 using AdoExport.Auditing.Rules;
 
-using AutoMapper;
+using AdoExport.Api.Controllers.Mappings;
 
 namespace AdoExport.Api.Repositories;
 
@@ -13,11 +13,11 @@ public class RulesRepository : IRulesRepository
 {
     private readonly INotesOnRulesService _notesOnRulesService;
 
-    private readonly IMapper _mapper;
+    private readonly IAuditMapper _mapper;
 
     public RulesRepository(
         INotesOnRulesService notesOnRulesService,
-        IMapper mapper)
+        IAuditMapper mapper)
     {
         Guard.IsNotNull(notesOnRulesService);
         Guard.IsNotNull(mapper);
@@ -42,9 +42,9 @@ public class RulesRepository : IRulesRepository
             rules.Add(new RuleDto()
             {
                 Id = representativeRuleResult.Reason.Id,
-                Scope = _mapper.Map<AdoExport.Auditing.Categories, Controllers.Models.Categories>(representativeRuleResult.Reason.Category),
+                Scope = _mapper.MapCategoryToDto(representativeRuleResult.Reason.Category),
                 TotalCounts = ruleResult.Count(),
-                Severity = _mapper.Map<AdoExport.Auditing.Severities, Controllers.Models.Severities>(representativeRuleResult.Reason.Severity),
+                Severity = _mapper.MapSeverityToDto(representativeRuleResult.Reason.Severity),
                 Name = hint.Name,
                 Description = hint.Description,
                 Recommendation = hint.Recommendations,
@@ -64,9 +64,9 @@ public class RulesRepository : IRulesRepository
             rules.Add(new RuleDto()
             {
                 Id = ruleResult.Reason.Id,
-                Scope = _mapper.Map<AdoExport.Auditing.Categories, Controllers.Models.Categories>(ruleResult.Reason.Category),
+                Scope = _mapper.MapCategoryToDto(ruleResult.Reason.Category),
                 TotalCounts = allRuleResults.Count(r => r.Reason.Id == ruleResult.Reason.Id),
-                Severity = _mapper.Map<AdoExport.Auditing.Severities, Controllers.Models.Severities>(ruleResult.Reason.Severity),
+                Severity = _mapper.MapSeverityToDto(ruleResult.Reason.Severity),
                 Name = hint.Name,
                 Description = hint.Description,
                 Recommendation = hint.Recommendations,

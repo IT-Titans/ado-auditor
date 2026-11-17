@@ -12,7 +12,7 @@
         organizations to enhance the security of their Azure DevOps environments.
       </TextsPageIntro>
       <p>
-        ADO Auditor is created by IT-Titans GmbH,
+        ADO Auditor is created by IT Titans GmbH,
         your IT service provider if you are searching for a partner with heart, soul and passion for software development.
       </p>
       <p>

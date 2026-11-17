@@ -144,7 +144,7 @@ public class UsersFacade : IUsersFacade
         foreach (var patAuditResult in allPatAuditResults)
         {
             var patUser = await _userRepository.GetUserByUserIdAsync(patAuditResult.Auditee.UserId).ConfigureAwait(false);
-            if (string.Equals(patUser.Descriptor, userDto.Descriptor, StringComparison.OrdinalIgnoreCase) == false)
+            if (patUser is null || string.Equals(patUser.Descriptor, userDto.Descriptor, StringComparison.OrdinalIgnoreCase) == false)
             {
                 continue;
             }

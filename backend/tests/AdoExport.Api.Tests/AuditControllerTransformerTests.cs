@@ -1,4 +1,5 @@
-﻿using AdoExport.Api.Controllers.Transformers;
+﻿using AdoExport.Api.Controllers.Mappings;
+using AdoExport.Api.Controllers.Transformers;
 using AdoExport.Api.Services;
 using AdoExport.Auditing;
 using AdoExport.Auditing.Rules;
@@ -7,20 +8,11 @@ using AdoExport.Auditing.Rules.SshKeys.Reasons;
 using AdoExport.Auditing.Rules.Users.Reasons;
 using AdoExport.Client.AdoApi.Models;
 
-using AutoMapper;
-
 namespace AdoExport.Api.Tests;
 
 public class AuditControllerTransformerTests
 {
-    private Mapper _mapper;
-
-    [OneTimeSetUp]
-    public void OneTimeSetup()
-    {
-        var autoMapperConfiguration = new MapperConfiguration(cfg => { cfg.AddMaps(typeof(Program)); });
-        _mapper = new Mapper(autoMapperConfiguration);
-    }
+    private readonly IAuditMapper _mapper = new AuditMapper();
 
     [Test]
     public void CountsTotalIssues()

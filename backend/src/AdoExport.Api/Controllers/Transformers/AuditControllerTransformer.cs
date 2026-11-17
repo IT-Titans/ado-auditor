@@ -3,7 +3,7 @@ using AdoExport.Api.Controllers.Models;
 using AdoExport.Api.Services;
 using AdoExport.Auditing;
 
-using AutoMapper;
+using AdoExport.Api.Controllers.Mappings;
 
 namespace AdoExport.Api.Controllers.Transformers;
 
@@ -11,11 +11,11 @@ public class AuditControllerTransformer
 {
     private readonly IAuditSummarizerService _auditSummarizer;
 
-    private readonly IMapper _mapper;
+    private readonly IAuditMapper _mapper;
 
     public AuditControllerTransformer(
         IAuditSummarizerService auditSummarizer,
-        IMapper mapper)
+        IAuditMapper mapper)
     {
         Guard.IsNotNull(auditSummarizer);
         _auditSummarizer = auditSummarizer;
@@ -45,14 +45,14 @@ public class AuditControllerTransformer
                 .OrderByDescending(item => item.Key)
                 .Select(group => new AuditSummaryCategoryDto()
                 {
-                    Category = _mapper.Map<AdoExport.Auditing.Categories, Models.Categories>(group.Key),
+                    Category = _mapper.MapCategoryToDto(group.Key),
                     TotalCount = group.Count(),
                     CriticalIssuesCount = group.Count(item => item.Severity == AdoExport.Auditing.Severities.Critical),
                     WarningIssuesCount = group.Count(item => item.Severity == AdoExport.Auditing.Severities.Warning),
                     OkIssuesCount = group.Count(item => item.Severity == AdoExport.Auditing.Severities.Ok),
                     Items = group
                         .OrderBy(item => item.Severity)
-                        .Select(_mapper.Map<SummaryItem, AuditSummaryCategoryItemDto>)
+                        .Select(_mapper.MapSummaryItemToDto)
                         .ToArray()
                 })
                 .ToArray()

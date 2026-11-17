@@ -10,8 +10,8 @@
           <ULink to="https://www.linkedin.com/company/it-titans-gmbh" target="_blank">
             <UIcon name="i-tabler-brand-linkedin" />
           </ULink>
-          <ULink to="https://github.com/it-titans" target="_blank">
-            <UIcon name="i-tabler-brand-github" />
+          <ULink to="https://github.com/IT-Titans/ado-auditor" target="_blank">
+              <UIcon name="i-lucide-github" />
           </ULink>
         </div>
       </aside>

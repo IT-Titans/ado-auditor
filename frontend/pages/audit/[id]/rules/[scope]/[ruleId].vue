@@ -51,7 +51,7 @@ const selected = componentMap[scope];
 const { data, error } = await useAsyncData<typeof selected.fetchType>(
   `rule-${scope}-${ruleId}`,
   () =>
-    $fetch(apiUrl, {
+    $fetch<typeof selected.fetchType>(apiUrl, {
       query: {
         auditId: auditId,
       },

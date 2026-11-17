@@ -2,6 +2,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using FluentResults;
+
 namespace AdoExport.Api.Services.Notifications;
 
 public static class SendMailServiceExtensions
@@ -14,7 +16,7 @@ public static class SendMailServiceExtensions
     /// <param name="receiver">The receivers email.</param>
     /// <param name="feedback">The feedback.</param>
     /// <returns>The operations result.</returns>
-    public static Task SendFeedbackMailAsync(
+    public static Task<Result> SendFeedbackMailAsync(
         this ISendMailService sendMailService,
         string sender,
         string receiver,
@@ -43,7 +45,7 @@ public static class SendMailServiceExtensions
     /// <param name="receiver">The receivers email.</param>
     /// <param name="contactInquiry">The inquiry.</param>
     /// <returns>The operations result.</returns>
-    public static Task SendContactMailAsync(
+    public static Task<Result> SendContactMailAsync(
         this ISendMailService sendMailService,
         string sender,
         string receiver,
@@ -72,7 +74,7 @@ public static class SendMailServiceExtensions
     /// <param name="receiver">The receivers email.</param>
     /// <param name="userConsent">The user consent information.</param>
     /// <returns>The operations result.</returns>
-    public static Task SendUserConsentMailAsync<TConsent>(
+    public static Task<Result> SendUserConsentMailAsync<TConsent>(
         this ISendMailService sendMailService,
         string sender,
         string receiver,
@@ -103,7 +105,7 @@ public static class SendMailServiceExtensions
     /// <param name="receiver">The receivers email.</param>
     /// <param name="auditMetrics">The audit metrics.</param>
     /// <returns>The operations result.</returns>
-    public static Task SendAuditMetricsMailAsync(
+    public static Task<Result> SendAuditMetricsMailAsync(
         this ISendMailService sendMailService,
         string sender,
         string receiver,
@@ -127,7 +129,7 @@ public static class SendMailServiceExtensions
     /// <param name="receiver">The receivers email.</param>
     /// <param name="errorReport">The error report.</param>
     /// <returns>The operations result.</returns>
-    public static Task SendErrorReportMailAsync(
+    public static Task<Result> SendErrorReportMailAsync(
         this ISendMailService sendMailService,
         string sender,
         string receiver,

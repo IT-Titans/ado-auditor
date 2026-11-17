@@ -2,38 +2,41 @@
 
 See the projects wiki [here](docs/README.md)
 
-## License & Terms of Use
+## Licence
 
-The source code of ADO Auditor is publicly accessible to ensure transparency.
-ADO Auditor is released under the ADO Auditor Business Source License (AA-BSL).
+ADO Auditor is free software, published under the
+[GNU Affero General Public License v3.0 or later](./LICENSE).
 
-Allowed without separate permission:
+You may use, study, modify and redistribute it, including commercially. Two
+obligations come with that:
 
-    Non-commercial use
+- If you distribute it, modified or not, you pass on the same freedoms and make
+  the source available.
+- **If you run a modified version as a network service, you must offer its
+  source code to the people using it** (AGPL section 13).
 
-    Internal testing
+Using the hosted service at https://ado-auditor.com places no obligations on
+you. The licence concerns those who redistribute the software or operate it
+themselves.
 
-    Research and teaching
+### Commercial licence
 
-Not allowed without a commercial license:
+IT Titans GmbH holds the copyright and is therefore not bound by the terms it
+grants to others. Where the AGPL does not fit your situation, a separate
+commercial licence is available: https://it-titans-gmbh.com/kontakt/
 
-    Any commercial use (including hosting as a service, integration into commercial products, sale, or rental)
+### Name and logo
 
-    Creation and publication of forks
+"ADO Auditor" and our logo are marks of IT Titans GmbH and are not covered by
+the AGPL. A fork needs a name of its own. See [NOTICE](./NOTICE).
 
-    Public distribution of modified versions
+### Contributing
 
-Trademark and name protection:  
-The name “ADO Auditor,” our logo, and other brand identifiers may not be used without our written permission.
+Bug reports and pull requests are welcome. Please read
+[CONTRIBUTING.md](./CONTRIBUTING.md) first; a first pull request needs a signed
+[Contributor Licence Agreement](./CLA.md). Report security problems through
+[SECURITY.md](./SECURITY.md), not the issue tracker.
 
-Commercial use:  
-All commercial uses require a prior written license agreement with us.
-Contact: https://it-titans-gmbh.com/kontakt/
+### Warranty
 
-Disclaimer:  
-The software is provided “as is” without any warranty.
-The full license text is contained in the [LICENSE](./LICENSE) file.
-
-Note:  
-We reserve the right to release individual versions of ADO Auditor under a different license in the future – including open source.
-This will be done solely at our discretion.
+None. The software is provided "as is"; see sections 15 to 17 of the LICENSE.

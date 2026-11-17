@@ -19,9 +19,9 @@ const pageTitle = computed(() => {
 </script>
 
 <template>
-  <SectionsHero class="px-10 pt-14 pb-18 flex flex-col gap-8">
-    <div class="text-center">
-      <UIcon name="i-lucide-shield-check" class="text-7xl text-complementary-600" />
+  <SectionsHero class="px-10 pt-14 pb-18 grid grid-cols-1 gap-8 2xl:grid-cols-2">
+    <div class="px-6 pt-8 2xl:pt-20 text-center">
+        <UIcon name="i-lucide-shield-check" class="text-7xl text-complementary-600" />
       <h1 class="text-4xl text-center font-bold text-highlighted pb-4">Secure</h1>
       <p class="text-center font-medium text-pretty text-toned text-base/8 md:text-lg/8 mx-auto">
         Once the report has been generated, we won't leave you down!<br >

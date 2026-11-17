@@ -17,7 +17,7 @@ const fetchApi = computed(() => `pat-${padId}`);
 const { data, status, error } = await useAsyncData<PatDetailResponse>(
   fetchApi,
   () =>
-    $fetch("/api/pats/" + padId, {
+    $fetch<PatDetailResponse>("/api/pats/" + padId, {
       query: {
         auditId: route.params.id,
       },

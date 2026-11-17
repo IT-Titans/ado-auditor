@@ -38,11 +38,11 @@ public sealed class ExceptionMiddleware
         {
             _logger.LogError(ex, "[{TraceId}] Got an unhandled error", httpContext.TraceIdentifier);
 
-            await HandleExceptionAsync(httpContext, ex).ConfigureAwait(false);
+            await HandleExceptionAsync(httpContext, ex, _logger).ConfigureAwait(false);
         }
     }
 
-    private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static async Task HandleExceptionAsync(HttpContext context, Exception exception, ILogger logger)
     {
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
@@ -57,16 +57,19 @@ public sealed class ExceptionMiddleware
         var sendMailOptions = context.RequestServices.GetRequiredService<IOptions<ErrorReportsMailConfiguration>>();
         var sendMailService = context.RequestServices.GetRequiredService<ISendMailService>();
 
-        // Explicitly fire and forget. No need to block execution for this.
-        _ = sendMailService.SendErrorReportMailAsync(
-            sendMailOptions.Value.Sender,
-            sendMailOptions.Value.Receiver,
-            new ErrorReport()
-            {
-                TraceId = context.TraceIdentifier,
-                Message = exception.Message,
-                StackTrace = exception.StackTrace,
-            })
-            .ConfigureAwait(false);
+        // Explicitly fire and forget. No need to block execution for this. A report that
+        // cannot be sent is logged, so the error it was about is not lost twice.
+        _ = BackgroundMail.Send(
+            () => sendMailService.SendErrorReportMailAsync(
+                sendMailOptions.Value.Sender,
+                sendMailOptions.Value.Receiver,
+                new ErrorReport()
+                {
+                    TraceId = context.TraceIdentifier,
+                    Message = exception.Message,
+                    StackTrace = exception.StackTrace,
+                }),
+            logger,
+            "error report");
     }
 }

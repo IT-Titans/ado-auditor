@@ -11,7 +11,7 @@ const route = useRoute();
 const auditId = route.params.id as string;
 
 const { data, error } = await useAsyncData<PatResponse>(`pats`, () =>
-  $fetch(`/api/pats`, {
+  $fetch<PatResponse>(`/api/pats`, {
     query: {
       auditId,
     },

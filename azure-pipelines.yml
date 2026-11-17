@@ -7,35 +7,161 @@ trigger:
     include:
       - backend/**
       - frontend/**
-pr: none
-# Test PR
+# NOTE: this block does nothing on Azure Repos. YAML pr: triggers are honoured for
+# GitHub and Bitbucket only; for Azure Repos Git the gate is a Build Validation
+# branch policy, configured per branch under Repos > Branches > Branch policies.
+# It is kept because this repository is also mirrored to github.com/IT-Titans, where
+# the trigger would apply.
+#
+# The push guards below are what the branch policy relies on: a policy-triggered run
+# reports Build.Reason = PullRequest, so the images are built but never published.
+pr:
+  branches:
+    include:
+      - dev
+      - main
+  paths:
+    include:
+      - backend/**
+      - frontend/**
 variables:
   sha: $(Build.SourceVersion)
   tag: $(Build.SourceBranchName)-$(Build.BuildId)
 
 stages:
 
-# Build and test backend and frontend, push to remote container repository (#1526)
+# Run the backend test suite and publish results and coverage
+#
+# The SDK version comes from global.json at the repository root, which is the
+# single source of truth for the toolchain. The pin here only selects the feature
+# band to install on the agent.
+- stage: test
+  displayName: Test
+  jobs:
+  - job: backend_tests
+    displayName: Backend
+    pool: { vmImage: 'ubuntu-latest' }
+    steps:
+      - task: UseDotNet@2
+        displayName: Install .NET SDK 10
+        inputs:
+          packageType: sdk
+          version: '10.0.x'
+      - script: >
+          dotnet test backend/AdoExport.Api.sln
+          -c Release
+          --settings backend/coverage.runsettings
+          --logger trx
+          --results-directory "$(Agent.TempDirectory)/testresults"
+          --collect:"XPlat Code Coverage"
+        displayName: Run backend tests
+      # succeededOrFailed, because a failing test run is exactly when the report matters.
+      - task: PublishTestResults@2
+        displayName: Publish test results
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: VSTest
+          testResultsFiles: '**/*.trx'
+          searchFolder: '$(Agent.TempDirectory)/testresults'
+          failTaskOnFailedTests: true
+      - task: PublishCodeCoverageResults@2
+        displayName: Publish code coverage
+        condition: succeededOrFailed()
+        inputs:
+          summaryFileLocation: '$(Agent.TempDirectory)/testresults/**/coverage.cobertura.xml'
+
+      # ReportGenerator merges the per-project reports before anything is judged on
+      # them. Each test project emits its own file covering overlapping assemblies, and
+      # a line counts as covered if any project reaches it. Reading one file per
+      # assembly undercounts: on 12.11.2026 that difference was 14 points for
+      # AdoExport.Auditing.
+      - script: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
+          "$HOME/.dotnet/tools/reportgenerator" \
+            "-reports:$(Agent.TempDirectory)/testresults/**/coverage.cobertura.xml" \
+            "-targetdir:$(Agent.TempDirectory)/coverage" \
+            "-reporttypes:Cobertura"
+        displayName: Merge coverage reports
+        condition: succeededOrFailed()
+
+      - task: PowerShell@2
+        displayName: Enforce coverage minimum
+        condition: succeededOrFailed()
+        inputs:
+          pwsh: true
+          filePath: backend/Check-Coverage.ps1
+          arguments: -ReportPath "$(Agent.TempDirectory)/coverage/Cobertura.xml" -Minimum 90
+
+  - job: frontend_tests
+    displayName: Frontend
+    pool: { vmImage: 'ubuntu-latest' }
+    steps:
+      - task: NodeTool@0
+        displayName: Install Node 22
+        inputs:
+          versionSpec: '22.x'
+      - script: corepack enable && pnpm install --frozen-lockfile
+        workingDirectory: frontend
+        displayName: Install dependencies
+      # Type check and lint run before the tests, so a failure fails the Test stage.
+      # Lint warnings do not fail the step, only errors do.
+      - script: pnpm typecheck
+        workingDirectory: frontend
+        displayName: Type check frontend
+      - script: pnpm lint
+        workingDirectory: frontend
+        displayName: Lint frontend
+      # vitest.config.ts carries its own 90 % threshold for the logic set, so this step
+      # fails on its own when coverage drops. Vue components are outside that set by
+      # decision: most of their body is template rendering rather than logic.
+      - script: pnpm vitest run --coverage
+        workingDirectory: frontend
+        displayName: Run frontend tests
+      - task: PublishTestResults@2
+        displayName: Publish frontend test results
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: JUnit
+          testResultsFiles: 'frontend/test-results/junit.xml'
+          failTaskOnFailedTests: true
+      - task: PublishCodeCoverageResults@2
+        displayName: Publish frontend coverage
+        condition: succeededOrFailed()
+        inputs:
+          summaryFileLocation: 'frontend/coverage/cobertura-coverage.xml'
+
+# Build backend and frontend images, push to remote container repository (#1526)
 - stage: build
   displayName: Build and Push
+  dependsOn: test
   jobs:
   - job: backend
     displayName: Backend
     pool: { vmImage: 'ubuntu-latest' }
     steps:
       # Build backend
+      #
+      # The image is told which branch it is built from. The application loads
+      # appsettings.branch.<branch>.json when there is one, so an image built from main,
+      # the only kind deployed to production, runs with the production settings kept in
+      # backend/src/AdoExport.Api/appsettings.branch.main.json. For a pull request the
+      # value is "merge", for which no file exists.
       - task: Docker@2
         inputs:
           command: build
           Dockerfile: backend/Dockerfile
           repository: $(repoBackend)
+          arguments: --build-arg ADOAUDITOR_BUILD_BRANCH=$(Build.SourceBranchName)
           tags: |
             $(sha)
             $(tag)
             adoexport.api
           containerRegistry: ado-acr
-      # Push backend image to remote
+      # A pull request build validates, it does not publish. Without this guard a PR
+      # would overwrite the static adoexport.api tag in the registry with an
+      # unreviewed image.
       - task: Docker@2
+        condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
         inputs:
           command: push
           repository: $(repoBackend)
@@ -61,8 +187,9 @@ stages:
             $(tag)
             adoexport.app
           containerRegistry: ado-acr
-      # Push frontend image to remote
+      # Same here: validate on a pull request, publish only on dev and main.
       - task: Docker@2
+        condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
         inputs:
           command: push
           repository: $(repoFrontend)

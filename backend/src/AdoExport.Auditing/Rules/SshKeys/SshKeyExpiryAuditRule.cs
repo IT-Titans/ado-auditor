@@ -15,7 +15,15 @@ public class SshKeyExpiryAuditRule : AuditRule, ISshKeyAuditRule
 
     public RuleResult Audit(SessionTokenDto auditee)
     {
-        if (DateTime.Parse(auditee.ValidTo) - DateTime.Parse(auditee.ValidFrom) >= TimeSpan.FromDays(DaysPerYear))
+        Guard.IsNotNull(auditee);
+
+        // Compare instants, not local wall-clock values: subtracting two local DateTimes ignores
+        // daylight saving changes and shifts the lifetime by an hour across them.
+        var validFrom = DateTime.Parse(auditee.ValidFrom).ToUniversalTime();
+        var validTo = DateTime.Parse(auditee.ValidTo).ToUniversalTime();
+        var lifetime = validTo - validFrom;
+
+        if (lifetime >= TimeSpan.FromDays(DaysPerYear))
         {
             return new RuleResult()
             {
@@ -23,7 +31,7 @@ public class SshKeyExpiryAuditRule : AuditRule, ISshKeyAuditRule
             };
         }
 
-        if (DateTime.Parse(auditee.ValidTo) - DateTime.Parse(auditee.ValidFrom) >= TimeSpan.FromDays(DaysPerYear / 2))
+        if (lifetime >= TimeSpan.FromDays(DaysPerYear / 2))
         {
             return new RuleResult()
             {

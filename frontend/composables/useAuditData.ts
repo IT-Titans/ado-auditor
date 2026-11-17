@@ -11,7 +11,7 @@ export const useAuditData = async () => {
     const { data, error } = await useAsyncData<AuditData>(
       `audit-data-${params.id}`,
       () => {
-        return $fetch(`/api/audit/${params.id}`, {
+        return $fetch<AuditData>(`/api/audit/${params.id}`, {
           timeout: 1000 * 60 * 10,
         });
       }
@@ -25,7 +25,7 @@ export const useAuditData = async () => {
     }
 
     data.value!.summaries[2] = {
-      category: "projects",
+      scope: "projects",
       criticalCount: 0,
       warningCount: 0,
       okCount: 0,
@@ -53,7 +53,7 @@ export const useAuditData = async () => {
     };
 
     data.value!.summaries[3] = {
-      category: "groups",
+      scope: "groups",
       criticalCount: 0,
       warningCount: 0,
       okCount: 0,

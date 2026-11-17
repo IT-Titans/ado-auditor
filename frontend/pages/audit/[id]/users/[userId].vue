@@ -14,7 +14,7 @@ const auditId = route.params.id as string;
 const { data, error } = await useAsyncData<UserDetailsResponse>(
   "userDetails" + route.params.userId,
   () =>
-    $fetch(`/api/users/${route.params.userId}`, {
+    $fetch<UserDetailsResponse>(`/api/users/${route.params.userId}`, {
       query: {
         auditId: route.params.id,
       },

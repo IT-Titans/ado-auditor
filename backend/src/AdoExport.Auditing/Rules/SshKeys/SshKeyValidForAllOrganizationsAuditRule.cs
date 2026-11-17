@@ -13,6 +13,8 @@ public class SshKeyValidForAllOrganizationsAuditRule : AuditRule, ISshKeyAuditRu
 
     public RuleResult Audit(SessionTokenDto auditee)
     {
+        Guard.IsNotNull(auditee);
+
         if (auditee.TargetAccounts is null || auditee.TargetAccounts.Count == 0)
         {
             return new RuleResult()

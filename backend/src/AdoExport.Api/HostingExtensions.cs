@@ -2,7 +2,9 @@ using System.Text.Json;
 
 using AdoExport.Api.Auditing;
 using AdoExport.Api.Configuration;
+using AdoExport.Api.Controllers.Mappings;
 using AdoExport.Api.Controllers.Transformers;
+using AdoExport.Api.RateLimiting;
 using AdoExport.Api.Reports;
 using AdoExport.Api.Reports.DataSources;
 using AdoExport.Api.Reports.Models;
@@ -31,7 +33,7 @@ internal static class HostingExtensions
     public static WebApplicationBuilder ConfigureServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
-        builder.Services.AddAutoMapper(typeof(Program));
+        builder.Services.AddSingleton<IAuditMapper, AuditMapper>();
         builder.Services.AddHttpClient();
 
         builder.Services.AddSingleton<IDateTimeService, DateTimeService>();
@@ -44,7 +46,8 @@ internal static class HostingExtensions
             .AddFeedback()
             .AddErrorReporting()
             .AddUserConsent()
-            .AddPdfReports();
+            .AddPdfReports()
+            .AddRateLimiting();
 
         builder.Services.AddScoped<AuditControllerTransformer>();
 
@@ -60,6 +63,7 @@ internal static class HostingExtensions
             .AddOptionsWithFluentValidation<FeedbackMailConfiguration>(FeedbackMailConfiguration.ConfigurationSectionName)
             .AddOptionsWithFluentValidation<ContactMailConfiguration>(ContactMailConfiguration.ConfigurationSectionName)
             .AddOptionsWithFluentValidation<AzureCommunicationServiceConfiguration>(AzureCommunicationServiceConfiguration.ConfigurationSectionName)
+            .AddSingleton<IEmailClient, AzureCommunicationsEmailClient>()
             .AddSingleton<ISendMailService, AzureCommunicationsSendMailService>();
 
         return builder;

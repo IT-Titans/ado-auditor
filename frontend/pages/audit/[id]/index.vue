@@ -11,7 +11,7 @@ const fetchUrl = computed(() => `/api/audit/${route.params.id}`);
 const { data, error } = await useAsyncData<AuditData>(
   `audit-data-${route.params.id}`,
   () => {
-    return $fetch(fetchUrl.value, {
+    return $fetch<AuditData>(fetchUrl.value, {
       timeout: 1000 * 60 * 10,
     });
   },

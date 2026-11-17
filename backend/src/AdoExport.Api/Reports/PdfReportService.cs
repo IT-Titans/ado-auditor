@@ -56,7 +56,9 @@ public class PdfReportService : IPdfReportService
                 return Result.Fail(new RequestWasCanceledError());
             }
 
-            var pdfDocument = Document.Create(container => _createReportDocument(auditModel).Compose(container));
+            // Use the report document itself: wrapping it in Document.Create(...) drops its metadata,
+            // which left the title empty and made every download be named ".pdf".
+            var pdfDocument = _createReportDocument(auditModel);
 
             return Result.Ok(new PdfFileInfo()
             {

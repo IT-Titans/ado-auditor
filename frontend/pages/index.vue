@@ -8,6 +8,7 @@
       <MarketingHeroLightUp />
       <MarketingHeroWhatRules />
       <MarketingFullPageAct />
+      <MarketingOpenSource />
       <MarketingCompanyBanner />
     </div>
   </div>

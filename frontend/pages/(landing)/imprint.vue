@@ -10,17 +10,17 @@
       <section id="legal-imprint">
         <h2>Legal Notice / Imprint</h2>
 
-        <p><strong>IT-Titans GmbH</strong><br>
-          Owner: Sarah Mostertz<br>
+        <p><strong>IT Titans GmbH</strong><br>
+          Owner: Sarah Koch<br>
           Am Emsdeich 48<br>
           26789 Leer<br>
-          Email: <a href="mailto:sarah.mostertz@it-titans.de">sarah.mostertz@it-titans.de</a><br>
-          Commercial Register Number (HRB): HRB206604</p>
+          Email: <a href="mailto:info@it-titans.de">info@it-titans.de</a><br>
+          Commercial Register: Amtsgericht Aurich, HRB 206604</p>
 
         <p><strong>Content Responsible pursuant to § 18 (2) MStV:</strong><br>
-          IT-Titans GmbH<br>
-          Rudolfswieke 47<br>
-          26802 Moormerland, Germany</p>
+          IT Titans GmbH<br>
+          Am Emsdeich 48<br>
+          26789 Leer, Germany</p>
 
         <h3>Copyright Notice</h3>
         <p>
