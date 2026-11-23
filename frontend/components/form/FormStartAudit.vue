@@ -91,6 +91,7 @@ async function onSubmit(event: FormSubmitEvent<LoginSchema>) {
         </span>
       </template>
     </UAlert>
+    <ClientOnly>
     <UForm :schema="loginSchema" :state class="grid grid-cols-1 md:grid-cols-2 gap-6 w-5/6"  @submit="onSubmit">
       <UFormField name="organization" required size="xl">
         <template #label>
@@ -163,6 +164,28 @@ async function onSubmit(event: FormSubmitEvent<LoginSchema>) {
         </div>
       </div>
     </UForm>
+      <template #fallback>
+        <!-- Same footprint as the form, but nothing a browser could submit. The form only exists
+             once the page runs in the browser, so no PAT can leave it as a query string before then. -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-5/6" aria-hidden="true">
+        <div class="h-[68px]">
+          <USkeleton class="h-5 w-40 mb-1" />
+          <USkeleton class="h-10 w-full" />
+        </div>
+        <div class="h-[68px]">
+          <USkeleton class="h-5 w-40 mb-1" />
+          <USkeleton class="h-10 w-full" />
+        </div>
+        <div class="md:col-span-2 h-[68px]">
+          <USkeleton class="h-5 w-40 mb-1" />
+          <USkeleton class="h-10 w-full" />
+        </div>
+        <USkeleton class="md:col-span-2 h-6 w-72" />
+        <USkeleton class="md:col-span-2 h-6 w-72" />
+        <USkeleton class="md:col-span-2 h-11 w-full" />
+      </div>
+    </template>
+    </ClientOnly>
   </div>
 </template>
 

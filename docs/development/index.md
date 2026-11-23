@@ -19,3 +19,7 @@ See this guide: [Conventions](conventions.md)
 ## Releases
 
 See this guide: [Release Guide](releases.md)
+
+## The public repository on GitHub
+
+See this guide: [The public repository on GitHub](github-mirror.md)

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 const props = defineProps<{
-  statusCode: number;
+  statusCode?: number;
 }>();
 
 const config = computed(
-  () => errorMassages[props.statusCode] || errorMassages[500]
+  () => errorMassages[props.statusCode ?? 500] || errorMassages[500]
 );
 
 const route = useRoute();

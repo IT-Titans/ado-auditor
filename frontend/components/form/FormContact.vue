@@ -66,6 +66,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 </script>
 
 <template>
+  <ClientOnly>
   <UForm :schema="schema" :state="state" class="grid grid-cols-1 md:grid-cols-2 gap-6" @submit="onSubmit">
     <UFormField label="Name" name="name" size="xl">
       <UInput v-model="state.name" class="w-full" placeholder="John Doe" />
@@ -101,6 +102,30 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       </div>
     </div>
   </UForm>
+    <template #fallback>
+      <!-- Same footprint as the form, but nothing a browser could submit before the page runs. -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6" aria-hidden="true">
+        <div class="h-[68px]">
+          <USkeleton class="h-5 w-40 mb-1" />
+          <USkeleton class="h-10 w-full" />
+        </div>
+        <div class="h-[68px]">
+          <USkeleton class="h-5 w-40 mb-1" />
+          <USkeleton class="h-10 w-full" />
+        </div>
+        <div class="md:col-span-2 h-[68px]">
+          <USkeleton class="h-5 w-40 mb-1" />
+          <USkeleton class="h-10 w-full" />
+        </div>
+        <div class="md:col-span-2 h-[116px]">
+          <USkeleton class="h-5 w-40 mb-1" />
+          <USkeleton class="h-[88px] w-full" />
+        </div>
+        <USkeleton class="h-5 w-60" />
+        <USkeleton class="md:col-span-2 h-12 w-full" />
+      </div>
+    </template>
+  </ClientOnly>
 </template>
 
 <style scoped>

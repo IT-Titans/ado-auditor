@@ -35,6 +35,11 @@ employees in the course of their duties is already covered.
 3. Run the full test suite and the formatter.
 4. Open a pull request against `main` describing what changes and why.
 
+Your pull request is not merged on GitHub itself. This repository receives one commit
+per release, and development happens in our internal repository. We take your commits
+over there with you as the author, and they appear here with the next release. We say
+so on the pull request when we close it.
+
 ### Commit messages
 
 [Conventional Commits](https://www.conventionalcommits.org/). The type prefix

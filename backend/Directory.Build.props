@@ -18,9 +18,9 @@
     <PackageProjectUrl>https://github.com/IT-Titans/ado-auditor</PackageProjectUrl>
     <Authors>IT Titans GmbH</Authors>
 
-    <Version>1.4.0</Version>
-    <FileVersion>1.4.0.0</FileVersion>
-    <AssemblyVersion>1.4.0.0</AssemblyVersion>
+    <Version>1.4.1</Version>
+    <FileVersion>1.4.1.0</FileVersion>
+    <AssemblyVersion>1.4.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

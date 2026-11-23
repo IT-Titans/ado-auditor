@@ -130,6 +130,41 @@ stages:
         inputs:
           summaryFileLocation: 'frontend/coverage/cobertura-coverage.xml'
 
+  # The scripts that publish a release to GitHub and check it for drift. They run after
+  # the production deployment, where a defect in them would only show once a release is
+  # already out, so they are tested here against local git repositories.
+  - job: mirror_tests
+    displayName: Mirror scripts
+    pool: { vmImage: 'ubuntu-latest' }
+    steps:
+      - task: PowerShell@2
+        displayName: Run the mirror script tests
+        inputs:
+          pwsh: true
+          targetType: inline
+          script: |
+            $pester = Get-Module -ListAvailable Pester | Where-Object { $_.Version.Major -ge 5 } | Sort-Object Version -Descending | Select-Object -First 1
+            if (-not $pester) {
+              Install-Module Pester -RequiredVersion 5.7.1 -Force -Scope CurrentUser -SkipPublisherCheck
+              $pester = Get-Module -ListAvailable Pester | Where-Object { $_.Version -eq '5.7.1' } | Select-Object -First 1
+            }
+            Import-Module $pester.Path -Force
+            $configuration = New-PesterConfiguration
+            $configuration.Run.Path = 'mirror/tests'
+            $configuration.Run.Exit = $true
+            $configuration.Output.Verbosity = 'Detailed'
+            $configuration.TestResult.Enabled = $true
+            $configuration.TestResult.OutputFormat = 'NUnitXml'
+            $configuration.TestResult.OutputPath = '$(Agent.TempDirectory)/mirror-tests.xml'
+            Invoke-Pester -Configuration $configuration
+      - task: PublishTestResults@2
+        displayName: Publish mirror script test results
+        condition: succeededOrFailed()
+        inputs:
+          testResultsFormat: NUnit
+          testResultsFiles: '$(Agent.TempDirectory)/mirror-tests.xml'
+          failTaskOnFailedTests: true
+
 # Build backend and frontend images, push to remote container repository (#1526)
 - stage: build
   displayName: Build and Push
@@ -273,3 +308,49 @@ stages:
               appName: $(frontendProdAppName)
               containers: |
                 $(acrLoginServer)/$(repoFrontend):$(sha)
+
+# Keep the public repository identical to what runs in production
+#
+# github.com/IT-Titans/ado-auditor holds one snapshot commit per release. This stage
+# publishes the release that was just deployed and then checks that GitHub holds its
+# tree. See docs/development/github-mirror.md.
+#
+# It comes after the production deployment and nothing depends on it. A red run here
+# does not mean that the deployment failed, and it cannot hold back or undo one. It
+# means that the published source is not the source of what is running, which under
+# the AGPL has to be put right.
+- stage: mirror
+  displayName: Publish to GitHub
+  dependsOn: deploy_prod
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  jobs:
+  - job: mirror
+    displayName: Publish the release and check for drift
+    pool: { vmImage: 'ubuntu-latest' }
+    steps:
+      # The whole history, not a shallow clone: the publish step compares what GitHub
+      # holds with every earlier state of this branch before it adds to it.
+      - checkout: self
+        fetchDepth: 0
+        persistCredentials: false
+      # Skipped with a warning as long as no deploy key is set. The three variables are
+      # set on the pipeline, the key as a secret; none of them is kept in this file.
+      - task: PowerShell@2
+        displayName: Publish the release to GitHub
+        inputs:
+          pwsh: true
+          filePath: mirror/Publish-MirrorSnapshot.ps1
+          arguments: -Commit $(Build.SourceVersion)
+        env:
+          MIRROR_DEPLOY_KEY_BASE64: $(mirrorDeployKeyBase64)
+          MIRROR_AUTHOR_NAME: $(mirrorAuthorName)
+          MIRROR_AUTHOR_EMAIL: $(mirrorAuthorEmail)
+      # Runs whatever the step before did, and needs no credential: the repository is
+      # public. This is the step that turns "not published" into a red stage.
+      - task: PowerShell@2
+        displayName: Check that GitHub holds what was deployed
+        condition: succeededOrFailed()
+        inputs:
+          pwsh: true
+          filePath: mirror/Test-MirrorDrift.ps1
+          arguments: -Commit $(Build.SourceVersion)
