@@ -1,0 +1,155 @@
+# CI of this repository: what a change has to pass before it can be merged.
+#
+# It runs the checks of the Test stage in azure-pipelines.yml and builds both images
+# without publishing them. Nothing here needs a secret, so the workflow also runs for
+# pull requests from forks. Azure Pipelines does not run for pull requests; it builds
+# and deploys what has been merged into dev and main.
+#
+# The checks appear as "Backend", "Frontend" and "Images". The rulesets of dev and main
+# require all three.
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [dev, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      # The version azure-pipelines.yml installs is whatever is current on the day. A
+      # fixed one keeps a new release of the tool from changing the coverage figures
+      # of a pull request that did not touch them.
+      REPORTGENERATOR_VERSION: '5.6.0'
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # global.json at the repository root is the single source of truth for the SDK.
+      - name: Set up the .NET SDK
+        uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          global-json-file: global.json
+
+      - name: Run the backend tests
+        run: >
+          dotnet test backend/AdoExport.Api.sln
+          -c Release
+          --settings backend/coverage.runsettings
+          --logger trx
+          --results-directory "$RUNNER_TEMP/testresults"
+          --collect:"XPlat Code Coverage"
+
+      # ReportGenerator merges the per-project reports before anything is judged on
+      # them. Each test project emits its own file covering overlapping assemblies, and
+      # a line counts as covered if any project reaches it.
+      - name: Merge the coverage reports
+        if: ${{ !cancelled() }}
+        run: |
+          dotnet tool install dotnet-reportgenerator-globaltool --version "$REPORTGENERATOR_VERSION" --tool-path "$RUNNER_TEMP/tools"
+          "$RUNNER_TEMP/tools/reportgenerator" \
+            "-reports:$RUNNER_TEMP/testresults/**/coverage.cobertura.xml" \
+            "-targetdir:$RUNNER_TEMP/coverage" \
+            "-reporttypes:Cobertura"
+
+      - name: Enforce the coverage minimum
+        if: ${{ !cancelled() }}
+        shell: pwsh
+        run: ./backend/Check-Coverage.ps1 -ReportPath "$env:RUNNER_TEMP/coverage/Cobertura.xml" -Minimum 90
+
+      # Kept for a failing run, which is when somebody wants to read them.
+      - name: Upload the test results and the coverage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: backend-test-results
+          path: |
+            ${{ runner.temp }}/testresults/**/*.trx
+            ${{ runner.temp }}/coverage/Cobertura.xml
+          if-no-files-found: warn
+          retention-days: 14
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      NUXT_TELEMETRY_DISABLED: 1
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The same major version as the image in frontend/Dockerfile.
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+
+      # pnpm comes from the "packageManager" field in package.json.
+      - name: Install dependencies
+        run: corepack enable && pnpm install --frozen-lockfile
+
+      # Type check and lint run before the tests. Lint warnings do not fail the step,
+      # only errors do.
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      # vitest.config.ts carries the 90 % threshold for the logic set, so this step
+      # fails on its own when coverage drops.
+      - name: Test with the coverage gate
+        run: pnpm vitest run --coverage
+
+      - name: Upload the test results and the coverage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: frontend-test-results
+          path: |
+            frontend/test-results/junit.xml
+            frontend/coverage/cobertura-coverage.xml
+          if-no-files-found: warn
+          retention-days: 14
+
+  # Builds both images the way azure-pipelines.yml does, and throws them away. A change
+  # that breaks an image build would otherwise only show after the merge, in the run
+  # that is supposed to deploy it.
+  images:
+    name: Images
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # "ci" names no appsettings.branch.<branch>.json, so the image runs with the
+      # defaults, like one built for a pull request did in Azure Pipelines.
+      - name: Build the backend image
+        run: docker build --build-arg ADOAUDITOR_BUILD_BRANCH=ci --file backend/Dockerfile backend
+
+      - name: Build the frontend image
+        run: docker build --file frontend/Dockerfile frontend

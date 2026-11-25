@@ -7,23 +7,11 @@ trigger:
     include:
       - backend/**
       - frontend/**
-# NOTE: this block does nothing on Azure Repos. YAML pr: triggers are honoured for
-# GitHub and Bitbucket only; for Azure Repos Git the gate is a Build Validation
-# branch policy, configured per branch under Repos > Branches > Branch policies.
-# It is kept because this repository is also mirrored to github.com/IT-Titans, where
-# the trigger would apply.
-#
-# The push guards below are what the branch policy relies on: a policy-triggered run
-# reports Build.Reason = PullRequest, so the images are built but never published.
-pr:
-  branches:
-    include:
-      - dev
-      - main
-  paths:
-    include:
-      - backend/**
-      - frontend/**
+# Pull requests are checked by GitHub Actions (.github/workflows/ci.yml). That workflow
+# needs no access to the registry or to Azure, so it also runs for pull requests from
+# forks. This pipeline holds both, and therefore only runs for what has been merged
+# into dev and main.
+pr: none
 variables:
   sha: $(Build.SourceVersion)
   tag: $(Build.SourceBranchName)-$(Build.BuildId)
@@ -130,41 +118,6 @@ stages:
         inputs:
           summaryFileLocation: 'frontend/coverage/cobertura-coverage.xml'
 
-  # The scripts that publish a release to GitHub and check it for drift. They run after
-  # the production deployment, where a defect in them would only show once a release is
-  # already out, so they are tested here against local git repositories.
-  - job: mirror_tests
-    displayName: Mirror scripts
-    pool: { vmImage: 'ubuntu-latest' }
-    steps:
-      - task: PowerShell@2
-        displayName: Run the mirror script tests
-        inputs:
-          pwsh: true
-          targetType: inline
-          script: |
-            $pester = Get-Module -ListAvailable Pester | Where-Object { $_.Version.Major -ge 5 } | Sort-Object Version -Descending | Select-Object -First 1
-            if (-not $pester) {
-              Install-Module Pester -RequiredVersion 5.7.1 -Force -Scope CurrentUser -SkipPublisherCheck
-              $pester = Get-Module -ListAvailable Pester | Where-Object { $_.Version -eq '5.7.1' } | Select-Object -First 1
-            }
-            Import-Module $pester.Path -Force
-            $configuration = New-PesterConfiguration
-            $configuration.Run.Path = 'mirror/tests'
-            $configuration.Run.Exit = $true
-            $configuration.Output.Verbosity = 'Detailed'
-            $configuration.TestResult.Enabled = $true
-            $configuration.TestResult.OutputFormat = 'NUnitXml'
-            $configuration.TestResult.OutputPath = '$(Agent.TempDirectory)/mirror-tests.xml'
-            Invoke-Pester -Configuration $configuration
-      - task: PublishTestResults@2
-        displayName: Publish mirror script test results
-        condition: succeededOrFailed()
-        inputs:
-          testResultsFormat: NUnit
-          testResultsFiles: '$(Agent.TempDirectory)/mirror-tests.xml'
-          failTaskOnFailedTests: true
-
 # Build backend and frontend images, push to remote container repository (#1526)
 - stage: build
   displayName: Build and Push
@@ -192,9 +145,10 @@ stages:
             $(tag)
             adoexport.api
           containerRegistry: ado-acr
-      # A pull request build validates, it does not publish. Without this guard a PR
-      # would overwrite the static adoexport.api tag in the registry with an
-      # unreviewed image.
+      # This pipeline does not run for pull requests (pr: none above). The guard stays for
+      # a run that is started for one anyway, by hand or through a setting on the
+      # pipeline: it must not overwrite the static adoexport.api tag in the registry
+      # with an unreviewed image.
       - task: Docker@2
         condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
         inputs:
@@ -222,7 +176,7 @@ stages:
             $(tag)
             adoexport.app
           containerRegistry: ado-acr
-      # Same here: validate on a pull request, publish only on dev and main.
+      # Same guard as for the backend image.
       - task: Docker@2
         condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
         inputs:
@@ -308,49 +262,3 @@ stages:
               appName: $(frontendProdAppName)
               containers: |
                 $(acrLoginServer)/$(repoFrontend):$(sha)
-
-# Keep the public repository identical to what runs in production
-#
-# github.com/IT-Titans/ado-auditor holds one snapshot commit per release. This stage
-# publishes the release that was just deployed and then checks that GitHub holds its
-# tree. See docs/development/github-mirror.md.
-#
-# It comes after the production deployment and nothing depends on it. A red run here
-# does not mean that the deployment failed, and it cannot hold back or undo one. It
-# means that the published source is not the source of what is running, which under
-# the AGPL has to be put right.
-- stage: mirror
-  displayName: Publish to GitHub
-  dependsOn: deploy_prod
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
-  jobs:
-  - job: mirror
-    displayName: Publish the release and check for drift
-    pool: { vmImage: 'ubuntu-latest' }
-    steps:
-      # The whole history, not a shallow clone: the publish step compares what GitHub
-      # holds with every earlier state of this branch before it adds to it.
-      - checkout: self
-        fetchDepth: 0
-        persistCredentials: false
-      # Skipped with a warning as long as no deploy key is set. The three variables are
-      # set on the pipeline, the key as a secret; none of them is kept in this file.
-      - task: PowerShell@2
-        displayName: Publish the release to GitHub
-        inputs:
-          pwsh: true
-          filePath: mirror/Publish-MirrorSnapshot.ps1
-          arguments: -Commit $(Build.SourceVersion)
-        env:
-          MIRROR_DEPLOY_KEY_BASE64: $(mirrorDeployKeyBase64)
-          MIRROR_AUTHOR_NAME: $(mirrorAuthorName)
-          MIRROR_AUTHOR_EMAIL: $(mirrorAuthorEmail)
-      # Runs whatever the step before did, and needs no credential: the repository is
-      # public. This is the step that turns "not published" into a red stage.
-      - task: PowerShell@2
-        displayName: Check that GitHub holds what was deployed
-        condition: succeededOrFailed()
-        inputs:
-          pwsh: true
-          filePath: mirror/Test-MirrorDrift.ps1
-          arguments: -Commit $(Build.SourceVersion)

@@ -64,7 +64,7 @@ frontend/
 
 ## Checks
 
-The pipeline runs these three in this order, and a change has to pass all of them:
+The checks of a pull request run these three in this order, and a change has to pass all of them:
 
 ```bash
 pnpm typecheck
