@@ -30,20 +30,22 @@ employees in the course of their duties is already covered.
 
 ## Making a change
 
-1. Fork the repository and create a branch from `main`.
+1. Fork the repository and create a branch from `dev`.
 2. Make your change, with tests.
 3. Run the full test suite and the formatter.
-4. Open a pull request against `main` describing what changes and why.
+4. Open a pull request against `dev` describing what changes and why.
 
-Your pull request is not merged on GitHub itself. This repository receives one commit
-per release, and development happens in our internal repository. We take your commits
-over there with you as the author, and they appear here with the next release. We say
-so on the pull request when we close it.
+`dev` holds the current work and `main` the released version, see
+[Where the code lives](./docs/development/repository.md). Your pull request is checked
+by GitHub Actions and merged by squash. It reaches `main`, and with it the hosted
+service, with the next release.
 
 ### Commit messages
 
-[Conventional Commits](https://www.conventionalcommits.org/). The type prefix
-drives our release notes, so it matters:
+[Conventional Commits](https://www.conventionalcommits.org/). The title of your pull
+request has to follow them too, because it becomes the commit on `dev`; a check on the
+pull request says so when it does not. The type prefix drives our release notes, so it
+matters:
 
 ```
 feat: add rule for stale service connections
@@ -68,8 +70,8 @@ Run the whole suite, not just the project you touched. A test run that reports
 "No test is available" for any project is a failure, even when the exit code is
 zero: it means a project was skipped rather than passed.
 
-We are working towards 90% line coverage and will not accept changes that move
-it backwards.
+The checks require 90 % line coverage, for the backend in total and for each of its
+assemblies, and for the logic of the frontend. A change that falls below does not pass.
 
 ### Code style
 

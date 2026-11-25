@@ -20,6 +20,6 @@ See this guide: [Conventions](conventions.md)
 
 See this guide: [Release Guide](releases.md)
 
-## The public repository on GitHub
+## Where the code lives
 
-See this guide: [The public repository on GitHub](github-mirror.md)
+See this guide: [Where the code lives](repository.md)
