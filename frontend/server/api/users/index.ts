@@ -1,5 +1,5 @@
 import { H3Error } from "h3";
-import type { UserResponse } from "~/types/users";
+import type { UserResponse } from "#shared/types/users";
 
 export default defineEventHandler(async (event): Promise<UserResponse> => {
   const target = getProxiedUrl(event);

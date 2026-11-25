@@ -17,6 +17,13 @@ COPY . ./
 # with no test report and no coverage attached to the build. The pipeline runs them in
 # its own Test stage instead, where the results and the coverage are published.
 
+# The install above ran `nuxt prepare` as its postinstall step before the sources were
+# copied, so the types and path aliases in .nuxt describe an empty project. Nuxt 4 builds
+# in a directory of its own and leaves .nuxt as it is, while the Vue compiler reads the
+# aliases from there to resolve imported prop types. Without this step the build fails
+# with "Failed to resolve import source".
+RUN pnpm nuxt prepare
+
 # Build the project
 RUN pnpm nuxt build --no-cache
 

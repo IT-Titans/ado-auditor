@@ -3,6 +3,7 @@
 Get notes about all releases.
 
 - [vNext](vnext.md)
+- [v1.5.0](v1.5.0.md)
 - [v1.4.1](v1.4.1.md)
 - [v1.4.0](v1.4.0.md)
 - [v1.3.0](v1.3.0.md)

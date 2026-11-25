@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { mockNuxtImport } from "@nuxt/test-utils/runtime";
 import type { H3Event } from "h3";
 import {
   PROXY_KEY_HEADER,
@@ -15,9 +14,9 @@ const { useRuntimeConfigMock } = vi.hoisted(() => {
   };
 });
 
-mockNuxtImport("useRuntimeConfig", () => {
-  return useRuntimeConfigMock;
-});
+// Nitro provides useRuntimeConfig to server code as an auto-import. Without the server
+// build the function under test looks it up as a global, which is where the mock goes.
+vi.stubGlobal("useRuntimeConfig", useRuntimeConfigMock);
 
 function eventWith(
   headers: Record<string, string>,

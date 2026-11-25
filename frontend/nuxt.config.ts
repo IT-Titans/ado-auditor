@@ -16,9 +16,6 @@ export default defineNuxtConfig({
     "nuxt-feature-flags",
   ],
   devtools: { enabled: true },
-  imports: {
-    dirs: ["./types"],
-  },
   app: {
     head: {
       title: "ADO Auditor",
@@ -41,7 +38,17 @@ export default defineNuxtConfig({
   },
   css: ["~/assets/css/main.css"],
   featureFlags: {
-    config: "./feature-flags.config.ts",
+    // Declared here and not in a file of their own. nuxt-feature-flags copies its options
+    // into the runtime configuration before it reads a `config` file. Version 1.1.1 still
+    // imported that file on the server; 1.1.7 answers from the runtime configuration only,
+    // so flags from such a file never arrive and every flag reads as off without an error.
+    flags: {
+      pats: true,
+      users: true,
+      projects: false,
+      groups: false,
+      experimentalFeature: true,
+    },
   },
   runtimeConfig: {
     apiUrl: "",
@@ -57,5 +64,13 @@ export default defineNuxtConfig({
   },
   colorMode: {
     preference: "light",
+  },
+  icon: {
+    // Nuxt UI asks for the icon styles in the CSS layer "base", where a width or height
+    // utility overrides the default of 1em. This application was laid out without that:
+    // the icon styles sat outside every layer, so an icon is as large as the font size
+    // around it and classes like size-6 on it have no effect. The empty name keeps it
+    // that way. Removing this line makes those classes apply and resizes many icons.
+    cssLayer: "",
   },
 });

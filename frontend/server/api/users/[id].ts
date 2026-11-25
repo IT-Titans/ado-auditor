@@ -1,5 +1,5 @@
 import { H3Error } from "h3";
-import type { UserDetailsResponse } from "~/types/users";
+import type { UserDetailsResponse } from "#shared/types/users";
 
 export default defineEventHandler(
   async (event): Promise<UserDetailsResponse> => {

@@ -6,6 +6,10 @@ onlyBuiltDependencies:
   - unrs-resolver
   - vue-demi
 
+# Each entry lifts one transitive dependency past an advisory that its parent has not
+# picked up yet. Remove an entry once the parent ships the fixed version itself.
 overrides:
-  "vitest>tinypool": 2.1.2
   "@tailwindcss/typography>postcss-selector-parser": 6.1.5
+  "js-beautify>glob": 14.0.6
+  "editorconfig>minimatch": 11.0.9
+  "readdir-glob>minimatch": 11.0.9

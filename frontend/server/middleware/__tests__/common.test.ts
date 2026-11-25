@@ -32,6 +32,6 @@ describe("server access log middleware", () => {
 
     onFinish();
     expect(log).toHaveBeenCalledTimes(1);
-    expect(log.mock.calls[0][0]).toMatch(/^\[.+\] GET \/api\/x 204 - \d+ms$/);
+    expect(log.mock.calls[0]?.[0]).toMatch(/^\[.+\] GET \/api\/x 204 - \d+ms$/);
   });
 });

@@ -1,5 +1,5 @@
 import { H3Error } from "h3";
-import type { PatDetailResponse } from "~/types/pats";
+import type { PatDetailResponse } from "#shared/types/pats";
 
 export default defineEventHandler(async (event): Promise<PatDetailResponse> => {
   const target = getProxiedUrl(event);
