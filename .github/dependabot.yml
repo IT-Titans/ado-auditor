@@ -1,0 +1,110 @@
+# Dependabot version updates.
+#
+# Every update runs once a week and targets dev, where all changes enter. Major versions
+# are left out: they need a decision and a look at the release notes, not a routine pull
+# request. Minor and patch updates of one ecosystem arrive as one grouped pull request.
+#
+# The commit-message prefixes are not cosmetic: pull request titles must follow
+# Conventional Commits, and Dependabot's default title ("Bump X from A to B") does not.
+
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /frontend
+    target-branch: dev
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
+
+  - package-ecosystem: nuget
+    directory: /backend
+    target-branch: dev
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
+
+  # Keeps the SDK version in global.json current. A new SDK major is decided together
+  # with the target framework.
+  - package-ecosystem: dotnet-sdk
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    commit-message:
+      prefix: build
+      include: scope
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
+
+  # The base images of both Dockerfiles. Their major versions are the .NET and the
+  # Node.js version, which move with the application and not with a weekly update.
+  - package-ecosystem: docker
+    directories:
+      - /backend
+      - /frontend
+    target-branch: dev
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    commit-message:
+      prefix: build
+      include: scope
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
+
+  # Actions are pinned to commit SHAs; Dependabot moves the SHA and the version comment.
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Berlin
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      actions:
+        patterns:
+          - "*"
